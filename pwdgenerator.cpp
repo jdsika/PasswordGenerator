@@ -340,9 +340,9 @@ QStringList PwdGenerator::generateInitialPwds(const QStringList &initialSet)
 
         QString basePwd = initialSet.at(i);
 
-        // combine with all other initial passwords and itself!
+        // combine with all other initial passwords and NOT WITH itself!
 
-        for(int j = 1; j<initialSet.length();j++) {
+        for(int j = 1; (j<initialSet.length()) &&(j != i);j++) {
             QString complementPwd = initialSet.at(j);
             //combine baseString with all other strings in list to min and max size
 
@@ -354,11 +354,15 @@ QStringList PwdGenerator::generateInitialPwds(const QStringList &initialSet)
             for(int pwdLength = PASSWORD_LENGTH_MIN; pwdLength <= PASSWORD_LENGTH_MAX; pwdLength++) {
                 // both pwds combined do not reach minimum length requirement
                 if( maxLength < pwdLength) {
-                    break;
+                    continue;
                 }
                 else {
 
                     for(int k=1; k <= baseLength; k++) {
+                        if(complementLength < pwdLength - k ) {
+                            continue;
+                        }
+                        // add left to right
                         QString newPwd1 = (basePwd.left(k) + complementPwd.left(pwdLength - k)).toLower();
                         QString newPwd2 = (basePwd.right(k) + complementPwd.right(pwdLength - k)).toLower();
                         QString newPwd3 = (basePwd.left(k) + complementPwd.right(pwdLength - k)).toLower();
@@ -372,6 +376,21 @@ QStringList PwdGenerator::generateInitialPwds(const QStringList &initialSet)
                                << newPwd2.replace('z','y')
                                << newPwd3.replace('z','y')
                                << newPwd4.replace('z','y');
+
+                        // add right to left
+                        QString newPwd5 = (complementPwd.left(pwdLength - k) + basePwd.left(k)).toLower();
+                        QString newPwd6 = (complementPwd.right(pwdLength - k) + basePwd.right(k)).toLower();
+                        QString newPwd7 = (complementPwd.right(pwdLength - k) + basePwd.left(k)).toLower();
+                        QString newPwd8 = (complementPwd.left(pwdLength - k) + basePwd.right(k)).toLower();
+                        // start with lower case passwords
+                        newSet << newPwd5
+                               << newPwd6
+                               << newPwd7
+                               << newPwd8
+                               << newPwd5.replace('z','y')
+                               << newPwd6.replace('z','y')
+                               << newPwd7.replace('z','y')
+                               << newPwd8.replace('z','y');
                     }
                 }
             }
